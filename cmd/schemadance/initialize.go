@@ -15,11 +15,13 @@ func InitializeDir(databaseType string, migratePackage string) error {
 	if !ValidDbType(databaseType) {
 		log.Fatalf("%q is not a supported database type\nvalid types are %s\n", databaseType, strings.Join(DbTypes(), ", "))
 	}
-	dbFile := "db.go"
+
 
 	dir, _ := os.Getwd()
 
 	base := filepath.Base(dir)
+
+	dbFile := base + "_db.go"
 
 	for _, filename := range []string{base + ".go", dbFile, base + "_test.go"} {
 		if _, err := os.Stat(filename); !errors.Is(err, os.ErrNotExist) {
@@ -32,7 +34,7 @@ func InitializeDir(databaseType string, migratePackage string) error {
 		return err
 	}
 
-	_, err = fmt.Fprintf(f, "package %s\n//go:generate schemadance --generate %s\n", base, databaseType)
+	_, err = fmt.Fprintf(f, "package %s\n\n//go:generate schemadance --generate %s\n", base, databaseType)
 	if err != nil {
 		return err
 	}
